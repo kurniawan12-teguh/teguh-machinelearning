@@ -1,0 +1,53 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+
+# Membaca dataset
+df = pd.read_csv("kelulusan_mahasiswa.csv")
+print(df.info())
+print(df.head())
+print(df.isnull().sum())
+
+# Menghapus duplikat
+df = df.drop_duplicates()
+
+# Boxplot untuk IPK
+sns.boxplot(x=df['IPK'])
+plt.show()  # Menampilkan grafik boxplot
+
+# Menampilkan deskripsi statistik dari dataset
+print(df.describe())
+
+# Histogram dengan KDE untuk IPK
+sns.histplot(df['IPK'], bins=10, kde=True)
+plt.show()  # Menampilkan grafik histogram dengan KDE
+
+# Scatter plot antara IPK dan Waktu Belajar Jam, dengan warna berdasarkan Lulus
+sns.scatterplot(x='IPK', y='Waktu_Belajar_Jam', data=df, hue='Lulus')
+plt.show()  # Menampilkan grafik scatter plot
+
+# Heatmap untuk korelasi antar kolom
+sns.heatmap(df.corr(), annot=True, cmap="coolwarm")
+plt.show()  # Menampilkan grafik heatmap
+
+# Membuat fitur baru
+df['Rasio_Absensi'] = df['Jumlah_Absensi'] / 14
+df['IPK_x_Study'] = df['IPK'] * df['Waktu_Belajar_Jam']
+
+# Menyimpan dataset yang telah diproses
+df.to_csv("processed_kelulusan.csv", index=False)
+
+# Membagi dataset menjadi fitur dan target
+X = df.drop('Lulus', axis=1)
+y = df['Lulus']
+
+# Membagi dataset menjadi data latih, validasi, dan uji
+X_train, X_temp, y_train, y_temp = train_test_split(
+    X, y, test_size=0.3, stratify=y, random_state=42)
+
+X_val, X_test, y_val, y_test = train_test_split(
+    X_temp, y_temp, test_size=0.5, stratify=y_temp, random_state=42)
+
+# Menampilkan ukuran data latih, validasi, dan uji
+print(X_train.shape, X_val.shape, X_test.shape)
